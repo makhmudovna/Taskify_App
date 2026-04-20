@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taskify_app/app/app_base.dart';
+import 'package:taskify_app/widgets/icon_logo.dart';
 import 'package:taskify_app/widgets/login_button.dart';
 import 'package:taskify_app/widgets/login_form.dart';
 
@@ -56,24 +57,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             const SizedBox(height: 60),
-            Container(
-              height: 72,
-              width: 72,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: const Color.fromARGB(255, 75, 138, 243),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Color.fromARGB(255, 108, 142, 245),
-                        blurRadius: 20,
-                        offset: Offset(0, 8))
-                  ]),
-              child: const Icon(
-                Icons.check_rounded,
-                color: Colors.white,
-                size: 50,
-              ),
-            ),
+            const IconLogo(),
             const SizedBox(height: 20),
             const Text(
               'Welcome back',
