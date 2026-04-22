@@ -26,7 +26,7 @@ class _TaskPageState extends State<TaskPage> {
 
   void _addTask(String title) {
     if (title.isEmpty) return;
-    final tasks = _taskBox.values.toList().reversed.toList();
+    _taskBox.add(Task(title: title));
     setState(() {});
   }
 
@@ -45,7 +45,7 @@ class _TaskPageState extends State<TaskPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tasks = _taskBox.values.toList();
+    final tasks = _taskBox.values.toList().reversed.toList();
     final remaining = tasks.where((t) => !t.isCompleted).length;
 
     return AppBase(
