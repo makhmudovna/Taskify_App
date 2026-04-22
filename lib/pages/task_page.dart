@@ -30,16 +30,16 @@ class _TaskPageState extends State<TaskPage> {
     setState(() {});
   }
 
-  void _toggleTask(int index) {
-    final task = _taskBox.getAt(index);
+  void _toggleTask(dynamic key) {
+    final task = _taskBox.get(key);
     if (task == null) return;
     task.isCompleted = !task.isCompleted;
     task.save();
     setState(() {});
   }
 
-  void _deleteTask(int index) {
-    _taskBox.deleteAt(index);
+  void _deleteTask(dynamic key) {
+    _taskBox.delete(key);
     setState(() {});
   }
 
@@ -126,10 +126,11 @@ class _TaskPageState extends State<TaskPage> {
                   child: ListView.builder(
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {
+                      final task = tasks[index];
                       return TaskItem(
-                        task: tasks[index],
-                        onToggle: () => _toggleTask(index),
-                        onDelete: () => _deleteTask(index),
+                        task: task,
+                        onToggle: () => _toggleTask(task.key),
+                        onDelete: () => _deleteTask(task.key),
                       );
                     },
                   ),
