@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AddTaskContainer extends StatefulWidget {
-  const AddTaskContainer({super.key});
+  final Function(String) onAdd;
+  const AddTaskContainer({super.key, required this.onAdd});
 
   @override
   State<AddTaskContainer> createState() => _AddTaskContainerState();
@@ -21,7 +22,7 @@ class _AddTaskContainerState extends State<AddTaskContainer> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
@@ -33,7 +34,11 @@ class _AddTaskContainerState extends State<AddTaskContainer> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.add, color: Color.fromARGB(255, 75, 138, 243), size: 40,),
+          const Icon(
+            Icons.add,
+            color: Color.fromARGB(255, 75, 138, 243),
+            size: 40,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
@@ -51,6 +56,10 @@ class _AddTaskContainerState extends State<AddTaskContainer> {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () {
+              final text = _taskController.text.trim();
+              if (text.isEmpty) return;
+              widget.onAdd(text);
+              _taskController.clear();
             },
             child: Container(
               height: 36,

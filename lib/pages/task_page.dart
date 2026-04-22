@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:taskify_app/app/app_base.dart';
+import 'package:taskify_app/providers/theme_provider.dart';
 import 'package:taskify_app/widgets/add_task_container.dart';
 import 'package:taskify_app/widgets/task_item.dart';
 import 'package:taskify_app/widgets/task_model.dart';
@@ -22,16 +24,15 @@ class _TaskPageState extends State<TaskPage> {
     super.initState();
   }
 
-  void _addTask() {
-    final title = _taskController.text.trim();
+  void _addTask(String title) {
     if (title.isEmpty) return;
-    _taskBox.add(Task(title: title));
-    _taskController.clear();
+    final tasks = _taskBox.values.toList().reversed.toList();
     setState(() {});
   }
 
   void _toggleTask(int index) {
     final task = _taskBox.getAt(index);
+    if (task == null) return;
     task.isCompleted = !task.isCompleted;
     task.save();
     setState(() {});
@@ -39,17 +40,18 @@ class _TaskPageState extends State<TaskPage> {
 
   void _deleteTask(int index) {
     _taskBox.deleteAt(index);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final tasks = _taskBox.values.toList();
     final remaining = tasks.where((t) => !t.isCompleted).length;
-    
+
     return AppBase(
-        backgroundColor: const Color.fromARGB(255, 227, 227, 248),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 240, 240, 247),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           automaticallyImplyLeading: false,
           title: const Text(
             'My Tasks',
@@ -60,13 +62,34 @@ class _TaskPageState extends State<TaskPage> {
           ),
           centerTitle: false,
           actions: [
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8), color: Colors.white),
-              child: const Icon(Icons.dark_mode_outlined),
-            ),
+            Consumer<ThemeProvider>(builder: (context, themeProvider, _) {
+              return GestureDetector(
+                onTap: () => themeProvider.toggleTheme(),
+                child: Container(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Theme.of(context).cardColor,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromARGB(20, 0, 0, 0),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  child: Icon(
+                    themeProvider.isDarkMode
+                        ? Icons.wb_sunny_outlined
+                        : Icons.dark_mode_outlined,
+                    color: themeProvider.isDarkMode
+                        ? Colors.amber
+                        : const Color(0xFF1A1D2E),
+                  ),
+                ),
+              );
+            }),
             const SizedBox(
               width: 20,
             ),
@@ -79,13 +102,17 @@ class _TaskPageState extends State<TaskPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
-                const AddTaskContainer(),
+                AddTaskContainer(
+                  onAdd: (title) => _addTask(title),
+                ),
                 const SizedBox(height: 20),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
                       'All Tasks',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     Text('${tasks.length} total',
                         style: const TextStyle(
@@ -101,12 +128,8 @@ class _TaskPageState extends State<TaskPage> {
                     itemBuilder: (context, index) {
                       return TaskItem(
                         task: tasks[index],
-                        onToggle: () => setState(() {
-                          tasks[index].isCompleted = !tasks[index].isCompleted;
-                        }),
-                        onDelete: () => setState(() {
-                          tasks.removeAt(index);
-                        }),
+                        onToggle: () => _toggleTask(index),
+                        onDelete: () => _deleteTask(index),
                       );
                     },
                   ),
